@@ -61,9 +61,15 @@ public class UtilisateurController {
     )
     @PostMapping
     @PreAuthorize("hasAuthority('PERM_ADMIN')")
-    public ResponseEntity<UtilisateurDTO> createUtilisateur(@org.springframework.web.bind.annotation.RequestBody UtilisateurCreateDTO dto) {
+    public ResponseEntity<?> createUtilisateur(@org.springframework.web.bind.annotation.RequestBody UtilisateurCreateDTO dto) {
         log.info("[API] POST /api/utilisateurs - Création d'un utilisateur : {}", dto.getIdentifiant());
-        return ResponseEntity.ok(utilisateurService.createUtilisateur(dto));
+        try {
+            UtilisateurDTO utilisateur = utilisateurService.createUtilisateur(dto);
+            return ResponseEntity.ok(utilisateur);
+        } catch (Exception e) {
+            log.error("Erreur lors de la création de l'utilisateur : {}", e.getMessage(), e);
+            return ResponseEntity.status(400).body(java.util.Map.of("error", e.getMessage()));
+        }
     }
 
     @Operation(summary = "Obtenir un utilisateur avec ses permissions", description = "Retourne le détail d'un utilisateur et ses permissions.")
